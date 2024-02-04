@@ -1,0 +1,109 @@
+<html>
+<head>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  width: 100vw;
+  height: 100vh;
+  background-color: brown;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+// Get the canvas element and its context
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+// Set the canvas size to match the window size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Define some constants
+var GRAVITY = 0.5; // The acceleration of gravity
+var FRICTION = 0.99; // The friction coefficient
+var RADIUS = 10; // The radius of the balls
+var COLOR = "white"; // The color of the balls
+
+// Create an array to store the balls
+var balls = [];
+
+// Create a function to draw a ball
+function drawBall(x, y, r, c) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.fillStyle = c;
+  ctx.fill();
+  ctx.closePath();
+}
+
+// Create a function to update the position and velocity of a ball
+function updateBall(ball) {
+  // Apply gravity to the vertical velocity
+  ball.vy += GRAVITY;
+
+  // Apply friction to both velocities
+  ball.vx *= FRICTION;
+  ball.vy *= FRICTION;
+
+  // Update the position based on the velocity
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // Check for collision with the edges of the canvas
+  // If the ball hits the left or right edge, reverse the horizontal velocity and reduce it by half
+  // If the ball hits the top or bottom edge, reverse the vertical velocity and reduce it by half
+  if (ball.x - RADIUS < 0 || ball.x + RADIUS > canvas.width) {
+    ball.vx = -ball.vx / 2;
+  }
+  if (ball.y - RADIUS < 0 || ball.y + RADIUS > canvas.height) {
+    ball.vy = -ball.vy / 2;
+  }
+}
+
+// Create a function to draw and update all the balls
+function drawAndUpdateBalls() {
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Loop through the balls array
+  for (var i = 0; i < balls.length; i++) {
+    // Draw the ball
+    drawBall(balls[i].x, balls[i].y, RADIUS, COLOR);
+
+    // Update the ball
+    updateBall(balls[i]);
+  }
+
+  // Request the next animation frame
+  requestAnimationFrame(drawAndUpdateBalls);
+}
+
+// Add an event listener for mouse down
+canvas.addEventListener("mousedown", function(e) {
+  // Get the mouse position relative to the canvas
+  var mouseX = e.clientX - canvas.offsetLeft;
+  var mouseY = e.clientY - canvas.offsetTop;
+
+  // Create a new ball object with the mouse position and a random velocity
+  var ball = {
+    x: mouseX,
+    y: mouseY,
+    vx: Math.random() * 10 - 5,
+    vy: Math.random() * 10 - 5
+  };
+
+  // Push the ball to the balls array
+  balls.push(ball);
+});
+
+// Start the animation loop
+drawAndUpdateBalls();
+</script>
+</body>
+</html>
